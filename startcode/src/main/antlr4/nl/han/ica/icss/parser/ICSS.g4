@@ -56,10 +56,11 @@ ANTLR cheatsheet:
 
 stylesheet: var* rule+;
 
-var: (LOWER_IDENT | CAPITAL_IDENT) ASSIGNMENT_OPERATOR (TRUE | FALSE) SEMICOLON;
+var: varName ASSIGNMENT_OPERATOR (TRUE | FALSE) SEMICOLON;
+varName: CAPITAL_IDENT;
 
 rule: (selector OPEN_BRACE declaration* CLOSE_BRACE);
 selector: ID_IDENT | CLASS_IDENT | LOWER_IDENT;
 declaration: property COLON value SEMICOLON;
 property: LOWER_IDENT;
-value: SCALAR | COLOR | PIXELSIZE | PERCENTAGE;
+value: SCALAR | COLOR | PIXELSIZE | PERCENTAGE | varName;
