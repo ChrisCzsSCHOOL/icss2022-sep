@@ -17,6 +17,8 @@ PERCENTAGE: [0-9]+ '%';
 SCALAR: [0-9]+;
 
 
+
+
 //Color value takes precedence over id idents
 COLOR: '#' [0-9a-f] [0-9a-f] [0-9a-f] [0-9a-f] [0-9a-f] [0-9a-f];
 
@@ -52,7 +54,10 @@ ANTLR cheatsheet:
 
 */
 
-stylesheet: rule+;
+stylesheet: var* rule+;
+
+var: (LOWER_IDENT | CAPITAL_IDENT) ASSIGNMENT_OPERATOR (TRUE | FALSE) SEMICOLON;
+
 rule: (selector OPEN_BRACE declaration* CLOSE_BRACE);
 selector: ID_IDENT | CLASS_IDENT | LOWER_IDENT;
 declaration: property COLON value SEMICOLON;
