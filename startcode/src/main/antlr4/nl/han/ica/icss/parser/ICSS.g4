@@ -61,6 +61,7 @@ varName: CAPITAL_IDENT;
 
 rule: (selector OPEN_BRACE declaration* CLOSE_BRACE);
 selector: ID_IDENT | CLASS_IDENT | LOWER_IDENT;
-declaration: property COLON value SEMICOLON;
-property: LOWER_IDENT;
+declaration: propertyname COLON value SEMICOLON;
+propertyname: LOWER_IDENT;
 value: SCALAR | COLOR | PIXELSIZE | PERCENTAGE | varName | TRUE | FALSE;
+
