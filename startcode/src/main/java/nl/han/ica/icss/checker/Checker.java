@@ -37,7 +37,6 @@ public class Checker {
                 declaration.setError("Width, color not allowed");
             }
         }
-
     }
 
 
