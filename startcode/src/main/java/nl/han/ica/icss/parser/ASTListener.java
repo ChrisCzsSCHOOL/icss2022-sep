@@ -24,16 +24,17 @@ public class ASTListener extends ICSSBaseListener {
     // Enter: Maak astnode, zet op stack
     // Exit: haal astnode van stack, boeg toe als child aan de node op de stack
 
-	//Accumulator attributes:
-	private AST ast;
+    //Accumulator attributes:
+    private AST ast;
 
-	//Use this to keep track of the parent nodes when recursively traversing the ast
-	private Stack<ASTNode> currentContainer; // TODO: IHANStack
+    //Use this to keep track of the parent nodes when recursively traversing the ast
+    private Stack<ASTNode> currentContainer; // TODO: IHANStack
 
-	public ASTListener() {
-		ast = new AST();
-		currentContainer = new Stack<>(); // TODO: IHANStack
-	}
+    public ASTListener() {
+        ast = new AST();
+        currentContainer = new Stack<>(); // TODO: IHANStack
+    }
+
     public AST getAST() {
         return ast;
     }
@@ -76,13 +77,13 @@ public class ASTListener extends ICSSBaseListener {
     }
 
     @Override
-    public void enterProperty(ICSSParser.PropertyContext ctx) {
+    public void enterPropertyname(ICSSParser.PropertynameContext ctx) {
         PropertyName propertyName = new PropertyName(ctx.getText());
         currentContainer.push(propertyName);
     }
 
     @Override
-    public void exitProperty(ICSSParser.PropertyContext ctx) {
+    public void exitPropertyname(ICSSParser.PropertynameContext ctx) {
         PropertyName propertyName = (PropertyName) currentContainer.pop();
         currentContainer.peek().addChild(propertyName);
     }
