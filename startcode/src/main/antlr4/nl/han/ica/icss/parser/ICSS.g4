@@ -61,12 +61,16 @@ varname: CAPITAL_IDENT;
 
 rule: (selector OPEN_BRACE declaration* CLOSE_BRACE);
 selector: ID_IDENT | CLASS_IDENT | LOWER_IDENT;
-declaration: propertyname COLON value SEMICOLON;
+declaration: (propertyname COLON value SEMICOLON) | ifclause;
+
 propertyname: LOWER_IDENT;
 value: COLOR | numbervalue | varname | TRUE | FALSE | sum;
 numbervalue: SCALAR | PIXELSIZE | PERCENTAGE;
+
 sum: expression;
 expression: term ((PLUS | MIN) term)*;
 term: factor ((MUL | DIV) factor)*;
 factor: numbervalue | varname | '(' expression ')';
 
+ifclause: 'if' '[' boollean ']' OPEN_BRACE declaration* CLOSE_BRACE;
+boollean: TRUE | FALSE | varname;
