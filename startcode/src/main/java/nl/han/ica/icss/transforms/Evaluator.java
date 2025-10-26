@@ -26,5 +26,38 @@ public class Evaluator implements Transform {
 
     }
 
-    
+    private void applyStylesheet(Stylesheet node) {
+        applyStylerule((Stylerule) node.getChildren().get(0));
+    }
+
+    private void applyStylerule(Stylerule node) {
+        for (ASTNode child : node.getChildren())
+            if (child instanceof Declaration) {
+                applyDeclaration((Declaration) child);
+            }
+    }
+
+    private void applyDeclaration(Declaration node) {
+        node.expression = evaluateExpression(node.expression);
+    }
+
+    private PixelLiteral evaluateExpression(Expression expression) { // Kan iets anders zijn dan PixelLiteral, ligt aan grammatica denk Expression
+        if (expression instanceof PixelLiteral) {
+            return (PixelLiteral) expression;
+        } else {
+            return evalAddOperation((AddOperation) expression);
+        }
+
+    }
+
+    private PixelLiteral evalAddOperation(AddOperation expression) {
+
+        PixelLiteral left = evaluateExpression(expression.left);
+        PixelLiteral right = evaluateExpression(expression.right);
+
+        return new PixelLiteral(left.value+ right.value);
+
+    }
+
+
 }
