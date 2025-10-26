@@ -72,5 +72,6 @@ expression: term ((PLUS | MIN) term)*;
 term: factor ((MUL | DIV) factor)*;
 factor: numbervalue | varname | '(' expression ')';
 
-ifclause: 'if' '[' boollean ']' OPEN_BRACE declaration* CLOSE_BRACE;
+ifclause: 'if' '[' boollean ']' OPEN_BRACE declaration* CLOSE_BRACE (elseclause)?;
 boollean: TRUE | FALSE | varname;
+elseclause: 'else' OPEN_BRACE declaration* CLOSE_BRACE;
