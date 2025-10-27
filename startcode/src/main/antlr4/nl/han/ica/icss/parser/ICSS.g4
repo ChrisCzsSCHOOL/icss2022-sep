@@ -54,24 +54,68 @@ ANTLR cheatsheet:
 
 */
 
-stylesheet: var* rule+;
+stylesheet
+    : var* rule+ EOF
+    ;
 
-var: varname ASSIGNMENT_OPERATOR value SEMICOLON;
-varname: CAPITAL_IDENT;
+var
+    : varname ASSIGNMENT_OPERATOR value SEMICOLON        #VariableAssignment
+    ;
 
-rule: (selector OPEN_BRACE declaration* CLOSE_BRACE);
-selector: ID_IDENT | CLASS_IDENT | LOWER_IDENT;
-declaration: (propertyname COLON value SEMICOLON) | ifclause;
+varname
+    : CAPITAL_IDENT
+    ;
 
-propertyname: LOWER_IDENT;
-value: COLOR | numbervalue | varname | TRUE | FALSE | sum;
-numbervalue: SCALAR | PIXELSIZE | PERCENTAGE;
+rule
+    : selector OPEN_BRACE (declaration | ifclause)* CLOSE_BRACE
+    ;
 
-sum: expression;
-expression: term ((PLUS | MIN) term)*;
-term: factor ((MUL | DIV) factor)*;
-factor: numbervalue | varname | '(' expression ')';
+selector
+    : ID_IDENT
+    | CLASS_IDENT
+    | LOWER_IDENT
+    ;
 
-ifclause: 'if' '[' boollean ']' OPEN_BRACE declaration* CLOSE_BRACE (elseclause)?;
-boollean: TRUE | FALSE | varname;
-elseclause: 'else' OPEN_BRACE declaration* CLOSE_BRACE;
+declaration
+    : propertyname COLON expression SEMICOLON
+    ;
+
+propertyname
+    : LOWER_IDENT
+    ;
+
+expression
+    : expression PLUS term       #AddOperation
+    | expression MIN term        #SubtractOperation
+    | term                       #SingleTerm
+    ;
+
+term
+    : term MUL factor            #MultiplyOperation
+    | term DIV factor            #DivideOperation
+    | factor                     #SingleFactor
+    ;
+
+factor
+    : value
+    ;
+
+value
+    : COLOR                      #ColorLiteral
+    | SCALAR                     #ScalarLiteral
+    | PIXELSIZE                  #PixelLiteral
+    | PERCENTAGE                 #PercentageLiteral
+    | varname                    #VariableReference
+    | TRUE                       #BoolLiteral
+    | FALSE                      #BoolLiteral
+    ;
+
+ifclause
+    : IF BOX_BRACKET_OPEN value BOX_BRACKET_CLOSE
+      OPEN_BRACE (declaration | ifclause)* CLOSE_BRACE
+      elseclause?
+    ;
+
+elseclause
+    : ELSE OPEN_BRACE (declaration | ifclause)* CLOSE_BRACE
+    ;

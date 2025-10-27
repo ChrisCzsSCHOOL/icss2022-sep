@@ -53,6 +53,18 @@ public class ASTListener extends ICSSBaseListener {
     }
 
     @Override
+    public void enterRule(ICSSParser.RuleContext ctx) {
+        Stylerule stylerule = new Stylerule();
+        currentContainer.push(stylerule);
+    }
+
+    @Override
+    public void exitRule(ICSSParser.RuleContext ctx) {
+        Stylerule stylerule = (Stylerule) currentContainer.pop();
+        currentContainer.peek().addChild(stylerule);
+    }
+
+    @Override
     public void enterDeclaration(ICSSParser.DeclarationContext ctx) {
         Declaration declaration = new Declaration();
         currentContainer.push(declaration);
@@ -86,6 +98,41 @@ public class ASTListener extends ICSSBaseListener {
     public void exitPropertyname(ICSSParser.PropertynameContext ctx) {
         PropertyName propertyName = (PropertyName) currentContainer.pop();
         currentContainer.peek().addChild(propertyName);
+    }
+
+    @Override
+    public void enterIfclause(ICSSParser.IfclauseContext ctx) {
+        IfClause ifClause = new IfClause();
+        currentContainer.push(ifClause);
+    }
+
+    @Override
+    public void exitIfclause(ICSSParser.IfclauseContext ctx) {
+        IfClause ifClause = (IfClause) currentContainer.pop();
+        currentContainer.peek().addChild(ifClause);
+    }
+
+    @Override
+    public void enterElseclause(ICSSParser.ElseclauseContext ctx) {
+        ElseClause elseClause = new ElseClause();
+        currentContainer.push(elseClause);
+    }
+    @Override
+    public void exitElseclause(ICSSParser.ElseclauseContext ctx) {
+        ElseClause elseClause = (ElseClause) currentContainer.pop();
+        currentContainer.peek().addChild(elseClause);
+    }
+
+    @Override
+    public void enterPixelLiteral(ICSSParser.PixelLiteralContext ctx) {
+        PixelLiteral pixelLiteral = new PixelLiteral(ctx.getText());
+        currentContainer.push(pixelLiteral);
+    }
+
+    @Override
+    public void exitPixelLiteral(ICSSParser.PixelLiteralContext ctx) {
+        PixelLiteral pixelLiteral = (PixelLiteral) currentContainer.pop();
+        currentContainer.peek().addChild(pixelLiteral);
     }
 }
 
