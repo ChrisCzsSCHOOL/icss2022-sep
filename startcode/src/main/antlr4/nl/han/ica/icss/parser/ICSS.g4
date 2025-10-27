@@ -71,10 +71,11 @@ rule
     ;
 
 selector
-    : ID_IDENT
-    | CLASS_IDENT
-    | LOWER_IDENT
+    : ID_IDENT      #IdSelector
+    | CLASS_IDENT   #ClassSelector
+    | LOWER_IDENT   #TagSelector
     ;
+
 
 declaration
     : propertyname COLON expression SEMICOLON
