@@ -17,8 +17,6 @@ PERCENTAGE: [0-9]+ '%';
 SCALAR: [0-9]+;
 
 
-
-
 //Color value takes precedence over id idents
 COLOR: '#' [0-9a-f] [0-9a-f] [0-9a-f] [0-9a-f] [0-9a-f] [0-9a-f];
 
@@ -67,7 +65,7 @@ varname
     ;
 
 rule
-    : selector OPEN_BRACE (declaration | ifclause)* CLOSE_BRACE
+    : selector OPEN_BRACE (varname | declaration | ifclause)* CLOSE_BRACE
     ;
 
 selector
@@ -93,7 +91,6 @@ expression
 
 term
     : term MUL factor            #MultiplyOperation
-    | term DIV factor            #DivideOperation
     | factor                     #SingleFactor
     ;
 

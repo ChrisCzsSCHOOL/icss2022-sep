@@ -1,5 +1,6 @@
 package nl.han.ica.datastructures;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HANStack<T> implements IHANStack<T> {
@@ -11,7 +12,7 @@ public class HANStack<T> implements IHANStack<T> {
     }
 
     public HANStack() {
-        this.list = list;
+        this.list = new ArrayList<>();
     }
 
     @Override
@@ -21,17 +22,18 @@ public class HANStack<T> implements IHANStack<T> {
 
     @Override
     public T pop() {
-
-        T o = list.get(list.toArray().length - 1);
-        list.remove(o);
-
-        return o;
+        if (list.isEmpty()) {
+            throw new IllegalStateException("Stack is empty");
+        }
+        return list.remove(list.size() - 1);
     }
 
     @Override
     public T peek() {
-        return list.get(list.toArray().length - 1);
+        if (list.isEmpty()) {
+            throw new IllegalStateException("Stack is empty");
+        }
+        return list.get(list.size() - 1);
     }
 }
-
 

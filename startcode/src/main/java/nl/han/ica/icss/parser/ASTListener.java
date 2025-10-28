@@ -28,11 +28,11 @@ public class ASTListener extends ICSSBaseListener {
     private AST ast;
 
     // Use this to keep track of the parent nodes when recursively traversing the ast
-    private Stack<ASTNode> currentContainer; // TODO: IHANStack
+    private HANStack<ASTNode> currentContainer; // TODO: IHANStack
 
     public ASTListener() {
         ast = new AST();
-        currentContainer = new Stack<>(); // TODO: IHANStack
+        currentContainer = new HANStack<>(); // TODO: IHANStack
     }
 
     public AST getAST() {
