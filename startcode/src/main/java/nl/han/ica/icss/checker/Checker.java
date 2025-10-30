@@ -34,8 +34,6 @@ public class Checker {
                 checkStyleRule((Stylerule) child);
             }
         }
-
-
     }
 
     private void checkStyleRule(Stylerule rule) {
