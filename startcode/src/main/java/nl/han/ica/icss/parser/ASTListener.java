@@ -1,12 +1,7 @@
 package nl.han.ica.icss.parser;
 
-import java.util.Stack;
-import java.util.concurrent.Delayed;
 
-
-import javafx.beans.property.Property;
 import nl.han.ica.datastructures.HANStack;
-import nl.han.ica.datastructures.IHANStack;
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.*;
 import nl.han.ica.icss.ast.operations.AddOperation;
@@ -53,13 +48,13 @@ public class ASTListener extends ICSSBaseListener {
     }
 
     @Override
-    public void enterRule(ICSSParser.RuleContext ctx) {
+    public void enterStylerule(ICSSParser.StyleruleContext ctx) {
         Stylerule stylerule = new Stylerule();
         currentContainer.push(stylerule);
     }
 
     @Override
-    public void exitRule(ICSSParser.RuleContext ctx) {
+    public void exitStylerule(ICSSParser.StyleruleContext ctx) {
         Stylerule stylerule = (Stylerule) currentContainer.pop();
         currentContainer.peek().addChild(stylerule);
     }
@@ -270,4 +265,3 @@ public class ASTListener extends ICSSBaseListener {
     }
 
 }
-
