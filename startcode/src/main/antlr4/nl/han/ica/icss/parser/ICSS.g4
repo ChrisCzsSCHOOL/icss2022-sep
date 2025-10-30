@@ -53,7 +53,7 @@ ANTLR cheatsheet:
 */
 
 stylesheet
-    : var* rule+ EOF
+    : var* stylerule+ EOF
     ;
 
 var
@@ -64,7 +64,7 @@ varname
     : CAPITAL_IDENT
     ;
 
-rule
+stylerule
     : selector OPEN_BRACE (varname | declaration | ifclause)* CLOSE_BRACE
     ;
 

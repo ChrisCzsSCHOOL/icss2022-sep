@@ -53,13 +53,13 @@ public class ASTListener extends ICSSBaseListener {
     }
 
     @Override
-    public void enterRule(ICSSParser.RuleContext ctx) {
+    public void enterStylerule(ICSSParser.StyleruleContext ctx) {
         Stylerule stylerule = new Stylerule();
         currentContainer.push(stylerule);
     }
 
     @Override
-    public void exitRule(ICSSParser.RuleContext ctx) {
+    public void exitStylerule(ICSSParser.StyleruleContext ctx) {
         Stylerule stylerule = (Stylerule) currentContainer.pop();
         currentContainer.peek().addChild(stylerule);
     }
@@ -270,4 +270,3 @@ public class ASTListener extends ICSSBaseListener {
     }
 
 }
-

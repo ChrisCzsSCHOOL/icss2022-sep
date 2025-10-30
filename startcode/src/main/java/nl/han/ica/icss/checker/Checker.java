@@ -41,7 +41,13 @@ public class Checker {
             if (child instanceof Declaration) {
                 checkDeclaration((Declaration) child);
             }
+            if (child instanceof IfClause){
+                checkIfClause((IfClause) child);
+            }
         }
+    }
+
+    private void checkIfClause(IfClause child) { // TODO check op BoolLiteral
     }
 
     private void checkDeclaration(Declaration declaration) {
