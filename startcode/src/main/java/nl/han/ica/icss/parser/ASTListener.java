@@ -264,5 +264,4 @@ public class ASTListener extends ICSSBaseListener {
         MultiplyOperation multiplyOperation = (MultiplyOperation) currentContainer.pop();
         currentContainer.peek().addChild(multiplyOperation);
     }
-
 }
