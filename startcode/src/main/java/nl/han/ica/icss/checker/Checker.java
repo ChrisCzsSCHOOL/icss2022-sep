@@ -18,11 +18,9 @@ public class Checker {
 
     public void check(AST ast) {
         variableTypes = new LinkedList<>();
-        variableTypes.add(new HashMap<>()); // Global scope
+        variableTypes.add(new HashMap<>());
         checkStylesheet(ast.root);
-
     }
-
 
     private void checkStylesheet(Stylesheet sheet) {
         for (ASTNode child : sheet.getChildren()) {
@@ -111,26 +109,27 @@ public class Checker {
             ExpressionType leftType = getExpressionType(op.left);
             ExpressionType rightType = getExpressionType(op.right);
 
+            if (leftType == ExpressionType.COLOR || rightType == ExpressionType.COLOR) {
+                op.setError("Operations with colors are not allowed.");
+                return ExpressionType.UNDEFINED;
+            }
+
             if (op instanceof AddOperation || op instanceof SubtractOperation) {
-                if (leftType == ExpressionType.PIXEL && rightType == ExpressionType.PIXEL) {
-                    return ExpressionType.PIXEL;
-                }
-                if (leftType == ExpressionType.PERCENTAGE && rightType == ExpressionType.PERCENTAGE) {
-                    return ExpressionType.PERCENTAGE;
+                if (leftType == rightType && (leftType == ExpressionType.PIXEL || leftType == ExpressionType.PERCENTAGE)) {
+                    return leftType;
+                } else {
+                    op.setError("Operands for '+' and '-' must be of the same type (PIXEL or PERCENTAGE). Got " + leftType + " and " + rightType);
+                    return ExpressionType.UNDEFINED;
                 }
             } else if (op instanceof MultiplyOperation) {
-                if ((leftType == ExpressionType.PIXEL && rightType == ExpressionType.SCALAR)) {
-                    return ExpressionType.PIXEL;
+                if ((leftType == ExpressionType.SCALAR && (rightType == ExpressionType.PIXEL || rightType == ExpressionType.PERCENTAGE))) {
+                    return rightType;
                 }
-                if ((leftType == ExpressionType.SCALAR && rightType == ExpressionType.PIXEL)) {
-                    return ExpressionType.PIXEL;
+                if ((rightType == ExpressionType.SCALAR && (leftType == ExpressionType.PIXEL || leftType == ExpressionType.PERCENTAGE))) {
+                    return leftType;
                 }
-                if ((leftType == ExpressionType.PERCENTAGE && rightType == ExpressionType.SCALAR)) {
-                    return ExpressionType.PERCENTAGE;
-                }
-                if ((leftType == ExpressionType.SCALAR && rightType == ExpressionType.PERCENTAGE)) {
-                    return ExpressionType.PERCENTAGE;
-                }
+                op.setError("Multiplication requires at least one scalar operand. Got " + leftType + " and " + rightType);
+                return ExpressionType.UNDEFINED;
             }
         }
         return ExpressionType.UNDEFINED;
