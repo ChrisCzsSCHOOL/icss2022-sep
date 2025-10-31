@@ -43,29 +43,16 @@ ASSIGNMENT_OPERATOR: ':=';
 
 //--- PARSER: ---
 
-/*
-ANTLR cheatsheet:
-
-?: 0 of 1 keer
-*: 0 of meer keer
-+: 1 of meer keer
-
-*/
-
 stylesheet
-    : var* stylerule+ EOF
+    : (var | stylerule)* EOF
     ;
 
 var
-    : varname ASSIGNMENT_OPERATOR value SEMICOLON        #VariableAssignment
-    ;
-
-varname
-    : CAPITAL_IDENT
+    : CAPITAL_IDENT ASSIGNMENT_OPERATOR expression SEMICOLON        #VariableAssignment
     ;
 
 stylerule
-    : selector OPEN_BRACE (varname | declaration | ifclause)* CLOSE_BRACE
+    : selector OPEN_BRACE (var | declaration | ifclause)* CLOSE_BRACE
     ;
 
 selector
@@ -103,17 +90,17 @@ value
     | SCALAR                     #ScalarLiteral
     | PIXELSIZE                  #PixelLiteral
     | PERCENTAGE                 #PercentageLiteral
-    | varname                    #VariableReference
+    | CAPITAL_IDENT              #VariableReference
     | TRUE                       #BoolLiteral
     | FALSE                      #BoolLiteral
     ;
 
 ifclause
     : IF BOX_BRACKET_OPEN value BOX_BRACKET_CLOSE
-      OPEN_BRACE (declaration | ifclause)* CLOSE_BRACE
+      OPEN_BRACE (var | declaration | ifclause)* CLOSE_BRACE
       elseclause?
     ;
 
 elseclause
-    : ELSE OPEN_BRACE (declaration | ifclause)* CLOSE_BRACE
+    : ELSE OPEN_BRACE (var | declaration | ifclause)* CLOSE_BRACE
     ;

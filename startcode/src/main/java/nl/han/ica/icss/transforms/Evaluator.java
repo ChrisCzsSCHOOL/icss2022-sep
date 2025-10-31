@@ -1,7 +1,7 @@
 package nl.han.ica.icss.transforms;
 
-import nl.han.ica.datastructures.IHANLinkedList;
 import nl.han.ica.icss.ast.*;
+import nl.han.ica.icss.ast.literals.BoolLiteral;
 import nl.han.ica.icss.ast.literals.PercentageLiteral;
 import nl.han.ica.icss.ast.literals.PixelLiteral;
 import nl.han.ica.icss.ast.literals.ScalarLiteral;
@@ -24,13 +24,12 @@ public class Evaluator implements Transform {
     @Override
     public void apply(AST ast) {
         variableValues = new LinkedList<>();
+
         variableValues.addFirst(new HashMap<>());
 
         processBody(ast.root.body);
 
         variableValues.removeFirst();
-
-
     }
 
     private void processBody(ArrayList<ASTNode> body) {
@@ -41,12 +40,8 @@ public class Evaluator implements Transform {
             if (node instanceof VariableAssignment) {
                 VariableAssignment assignment = (VariableAssignment) node;
 
-                // TR01: Evalueer de expressie en sla op in de actuele scope
-
                 Literal value = evaluateExpression(assignment.expression);
-
                 String name = assignment.name.name;
-
                 variableValues.getFirst().put(name, value);
 
                 body.remove(i);
@@ -55,15 +50,42 @@ public class Evaluator implements Transform {
                 Stylerule stylerule = (Stylerule) node;
 
                 variableValues.addFirst(new HashMap<>());
-
                 processBody(stylerule.body);
-
                 variableValues.removeFirst();
 
                 i++;
+
             } else if (node instanceof IfClause) {
-                // TR02: Later...
-                i++;
+
+                IfClause ifClause = (IfClause) node;
+                Literal condition = evaluateExpression(ifClause.conditionalExpression);
+
+                if (((BoolLiteral) condition).value == true) {
+
+                    variableValues.addFirst(new HashMap<>());
+                    processBody(ifClause.body);
+                    variableValues.removeFirst();
+
+                    body.remove(i);
+                    body.addAll(i, ifClause.body);
+
+                } else {
+
+                    if (ifClause.getElseClause() != null) {
+                        ElseClause elseClause = ifClause.getElseClause();
+
+                        variableValues.addFirst(new HashMap<>());
+                        processBody(elseClause.body);
+                        variableValues.removeFirst();
+
+                        body.remove(i);
+                        body.addAll(i, elseClause.body);
+
+                    } else {
+                        body.remove(i);
+                    }
+                }
+
             } else if (node instanceof Declaration) {
                 applyDeclaration((Declaration) node);
                 i++;
@@ -71,17 +93,6 @@ public class Evaluator implements Transform {
                 i++;
             }
         }
-    }
-
-    private void applyStylesheet(Stylesheet node) {
-        applyStylerule((Stylerule) node.getChildren().get(0));
-    }
-
-    private void applyStylerule(Stylerule node) {
-        for (ASTNode child : node.getChildren())
-            if (child instanceof Declaration) {
-                applyDeclaration((Declaration) child);
-            }
     }
 
     private void applyDeclaration(Declaration node) {
@@ -99,7 +110,7 @@ public class Evaluator implements Transform {
         if (expression instanceof Operation) {
             return evaluateOperation((Operation) expression);
         }
-        throw new IllegalArgumentException("Unknown expression type");
+        throw new IllegalArgumentException("Unknown expression type: " + expression.getClass().getSimpleName());
     }
 
     private Literal getVariableValue(String name) {
@@ -110,7 +121,6 @@ public class Evaluator implements Transform {
         }
         throw new IllegalStateException("Variable " + name + " not found in any scope during evaluation.");
     }
-
 
     private Literal evaluateOperation(Operation operation) {
         Literal left = evaluateExpression(operation.left);
@@ -127,7 +137,6 @@ public class Evaluator implements Transform {
         throw new IllegalArgumentException("Unknown operation type: " + operation.getClass().getSimpleName());
     }
 
-
     private Literal evaluateMultiplication(Literal left, Literal right) {
 
         if (left instanceof ScalarLiteral) {
@@ -142,7 +151,6 @@ public class Evaluator implements Transform {
                 return new PercentageLiteral(result);
 
             } else if (right instanceof ScalarLiteral) {
-                // Scalar * Scalar
                 int result = scalarValue * ((ScalarLiteral) right).value;
                 return new ScalarLiteral(result);
             }
@@ -163,46 +171,46 @@ public class Evaluator implements Transform {
     }
 
     private Literal evaluateAddition(Literal left, Literal right) {
-        if (left instanceof ScalarLiteral) {
-            if (right instanceof ScalarLiteral) {
-                int result = ((ScalarLiteral) left).value + ((ScalarLiteral) right).value;
-                return new ScalarLiteral(result);
+
+        if (left instanceof PixelLiteral) {
+            if (right instanceof PixelLiteral) {
+                int result = ((PixelLiteral) left).value + ((PixelLiteral) right).value;
+                return new PixelLiteral(result);
             }
         } else if (left instanceof PercentageLiteral) {
             if (right instanceof PercentageLiteral) {
                 int result = ((PercentageLiteral) left).value + ((PercentageLiteral) right).value;
                 return new PercentageLiteral(result);
             }
-        }
-        if (left instanceof PixelLiteral) {
-            if (right instanceof PixelLiteral) {
-                int result = ((PixelLiteral) left).value + ((PixelLiteral) right).value;
-                return new PixelLiteral(result);
+        } else if (left instanceof ScalarLiteral) {
+            if (right instanceof ScalarLiteral) {
+                int result = ((ScalarLiteral) left).value + ((ScalarLiteral) right).value;
+                return new ScalarLiteral(result);
             }
         }
-        throw new IllegalArgumentException("Invalid operands for Addition");
+
+        throw new IllegalArgumentException("Invalid operands for Addition: types must match (e.g., Pixel + Pixel).");
     }
 
     private Literal evaluateSubtraction(Literal left, Literal right) {
-        if (left instanceof ScalarLiteral) {
-            if (right instanceof ScalarLiteral) {
-                int result = ((ScalarLiteral) left).value - ((ScalarLiteral) right).value;
-                return new ScalarLiteral(result);
+
+        if (left instanceof PixelLiteral) {
+            if (right instanceof PixelLiteral) {
+                int result = ((PixelLiteral) left).value - ((PixelLiteral) right).value;
+                return new PixelLiteral(result);
             }
         } else if (left instanceof PercentageLiteral) {
             if (right instanceof PercentageLiteral) {
                 int result = ((PercentageLiteral) left).value - ((PercentageLiteral) right).value;
                 return new PercentageLiteral(result);
             }
-        }
-        if (left instanceof PixelLiteral) {
-            if (right instanceof PixelLiteral) {
-                int result = ((PixelLiteral) left).value - ((PixelLiteral) right).value;
-                return new PixelLiteral(result);
+        } else if (left instanceof ScalarLiteral) {
+            if (right instanceof ScalarLiteral) {
+                int result = ((ScalarLiteral) left).value - ((ScalarLiteral) right).value;
+                return new ScalarLiteral(result);
             }
         }
-        throw new IllegalArgumentException("Invalid operands for Addition");
 
+        throw new IllegalArgumentException("Invalid operands for Subtraction: types must match (e.g., Pixel - Pixel).");
     }
-
 }

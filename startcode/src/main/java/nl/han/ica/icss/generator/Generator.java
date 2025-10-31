@@ -9,6 +9,7 @@ public class Generator {
         return "";
 
 
+        // generate, stylesheet, stylerule, selector, delcaration en literal alleen maar
 	}
 
 	

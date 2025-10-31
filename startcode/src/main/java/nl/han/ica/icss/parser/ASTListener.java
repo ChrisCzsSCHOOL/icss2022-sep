@@ -2,7 +2,6 @@ package nl.han.ica.icss.parser;
 
 
 import nl.han.ica.datastructures.HANStack;
-import nl.han.ica.datastructures.IHANStack;
 import nl.han.ica.icss.ast.*;
 import nl.han.ica.icss.ast.literals.*;
 import nl.han.ica.icss.ast.operations.AddOperation;
@@ -12,23 +11,16 @@ import nl.han.ica.icss.ast.selectors.ClassSelector;
 import nl.han.ica.icss.ast.selectors.IdSelector;
 import nl.han.ica.icss.ast.selectors.TagSelector;
 
-/**
- * This class extracts the ICSS Abstract Syntax Tree from the Antlr Parse tree.
- */
 public class ASTListener extends ICSSBaseListener {
 
-    // Enter: Maak astnode, zet op stack
-    // Exit: haal astnode van stack, boeg toe als child aan de node op de stack
 
-    //Accumulator attributes:
     private AST ast;
 
-    // Use this to keep track of the parent nodes when recursively traversing the ast
-    private HANStack<ASTNode> currentContainer; // TODO: IHANStack
+    private HANStack<ASTNode> currentContainer;
 
     public ASTListener() {
         ast = new AST();
-        currentContainer = new HANStack<>(); // TODO: IHANStack
+        currentContainer = new HANStack<>();
     }
 
     public AST getAST() {
@@ -161,6 +153,9 @@ public class ASTListener extends ICSSBaseListener {
     public void enterVariableAssignment(ICSSParser.VariableAssignmentContext ctx) {
         VariableAssignment variableAssignment = new VariableAssignment();
         currentContainer.push(variableAssignment);
+
+        String name = ctx.CAPITAL_IDENT().getText();
+        variableAssignment.addChild(new VariableReference(name));
     }
 
     @Override
@@ -170,13 +165,13 @@ public class ASTListener extends ICSSBaseListener {
     }
 
     @Override
-    public void enterVarname(ICSSParser.VarnameContext ctx) {
-        VariableReference variableReference = new VariableReference(ctx.getText());
+    public void enterVariableReference(ICSSParser.VariableReferenceContext ctx) {
+        VariableReference variableReference = new VariableReference(ctx.CAPITAL_IDENT().getText());
         currentContainer.push(variableReference);
     }
 
     @Override
-    public void exitVarname(ICSSParser.VarnameContext ctx) {
+    public void exitVariableReference(ICSSParser.VariableReferenceContext ctx) {
         VariableReference variableReference = (VariableReference) currentContainer.pop();
         currentContainer.peek().addChild(variableReference);
     }
