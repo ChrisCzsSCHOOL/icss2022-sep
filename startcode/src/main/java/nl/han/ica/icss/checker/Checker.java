@@ -8,6 +8,7 @@ import nl.han.ica.icss.ast.operations.MultiplyOperation;
 import nl.han.ica.icss.ast.operations.SubtractOperation;
 import nl.han.ica.icss.ast.types.ExpressionType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -23,7 +24,7 @@ public class Checker {
     }
 
     private void checkStylesheet(Stylesheet sheet) {
-        for (ASTNode child : sheet.getChildren()) {
+        for (ASTNode child : sheet.body) {
             if (child instanceof VariableAssignment) {
                 checkVariableAssignment((VariableAssignment) child);
             } else if (child instanceof Stylerule) {
@@ -34,18 +35,20 @@ public class Checker {
 
     private void checkStyleRule(Stylerule rule) {
         variableTypes.add(new HashMap<>());
-        for (ASTNode child : rule.getChildren()) {
+        checkBodyContent(rule.body);
+        variableTypes.removeLast();
+    }
+
+    private void checkBodyContent(ArrayList<ASTNode> body) {
+        for (ASTNode child : body) {
             if (child instanceof Declaration) {
                 checkDeclaration((Declaration) child);
-            }
-            if (child instanceof IfClause) {
+            } else if (child instanceof IfClause) {
                 checkIfClause((IfClause) child);
-            }
-            if (child instanceof VariableAssignment) {
+            } else if (child instanceof VariableAssignment) {
                 checkVariableAssignment((VariableAssignment) child);
             }
         }
-        variableTypes.removeLast();
     }
 
     private void checkVariableAssignment(VariableAssignment variableAssignment) {
@@ -66,7 +69,6 @@ public class Checker {
         }
 
         HashMap<String, ExpressionType> currentScope = variableTypes.peekLast();
-        // Kijk of een varianele al gedclareerd is
         if (currentScope.containsKey(variableAssignment.name.name)) {
             variableAssignment.setError("Variable " + variableAssignment.name.name + " is already declared in this scope.");
         } else {
@@ -75,7 +77,7 @@ public class Checker {
     }
 
     private void checkIfClause(IfClause ifClause) {
-        Expression condition = (Expression) ifClause.getChildren().get(0);
+        Expression condition = ifClause.conditionalExpression;
 
         if (condition instanceof VariableReference) {
             VariableReference varRef = (VariableReference) condition;
@@ -89,6 +91,16 @@ public class Checker {
             ifClause.setError("If-statement condition must be a boolean literal or a boolean variable.");
         }
 
+        variableTypes.add(new HashMap<>());
+        checkBodyContent(ifClause.body);
+        variableTypes.removeLast();
+
+        if (ifClause.elseClause != null) {
+            ElseClause elseClause = ifClause.elseClause;
+            variableTypes.add(new HashMap<>());
+            checkBodyContent(elseClause.body);
+            variableTypes.removeLast();
+        }
     }
 
     private ExpressionType getExpressionType(Expression expression) {
@@ -115,19 +127,20 @@ public class Checker {
             }
 
             if (op instanceof AddOperation || op instanceof SubtractOperation) {
-                if (leftType == rightType && (leftType == ExpressionType.PIXEL || leftType == ExpressionType.PERCENTAGE)) {
+                if (leftType == rightType && (leftType == ExpressionType.PIXEL || leftType == ExpressionType.PERCENTAGE || leftType == ExpressionType.SCALAR)) {
                     return leftType;
                 } else {
                     op.setError("Operands for '+' and '-' must be of the same type (PIXEL or PERCENTAGE). Got " + leftType + " and " + rightType);
                     return ExpressionType.UNDEFINED;
                 }
             } else if (op instanceof MultiplyOperation) {
-                if ((leftType == ExpressionType.SCALAR && (rightType == ExpressionType.PIXEL || rightType == ExpressionType.PERCENTAGE))) {
+                if (leftType == ExpressionType.SCALAR && (rightType == ExpressionType.PIXEL || rightType == ExpressionType.PERCENTAGE || rightType == ExpressionType.SCALAR)) {
                     return rightType;
                 }
-                if ((rightType == ExpressionType.SCALAR && (leftType == ExpressionType.PIXEL || leftType == ExpressionType.PERCENTAGE))) {
+                if (rightType == ExpressionType.SCALAR && (leftType == ExpressionType.PIXEL || leftType == ExpressionType.PERCENTAGE)) {
                     return leftType;
                 }
+
                 op.setError("Multiplication requires at least one scalar operand. Got " + leftType + " and " + rightType);
                 return ExpressionType.UNDEFINED;
             }
