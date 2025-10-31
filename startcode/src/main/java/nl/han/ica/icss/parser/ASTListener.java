@@ -1,10 +1,6 @@
 package nl.han.ica.icss.parser;
 
-import java.util.Stack;
-import java.util.concurrent.Delayed;
 
-
-import javafx.beans.property.Property;
 import nl.han.ica.datastructures.HANStack;
 import nl.han.ica.datastructures.IHANStack;
 import nl.han.ica.icss.ast.*;

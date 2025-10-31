@@ -64,6 +64,4 @@ public class Checker {
             declaration.setError("Property has to be width, height, color or background-color");
         }
     }
-
-
 }
